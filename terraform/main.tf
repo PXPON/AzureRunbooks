@@ -1,16 +1,3 @@
-provider "azurerm" {
-    subscription_id = "0dc2ac06-ab33-4bc1-9df3-bc0a61c163f9"
-    features {}
-}
-
-variable "project_tag" {
-    type = map(string)
-    default = {
-        Project = "rb-project"
-    }
-}
-
-
 resource "azurerm_resource_group" "runbook_project" {
     name = "rg_rb-project"
     location = "West US 2"
@@ -33,8 +20,7 @@ resource "azurerm_storage_account" "runbook_project" {
 # Create blob storage
 resource "azurerm_storage_container" "runbook_project" {
     name = "scrbproject"
-    storage_account_name = azurerm_storage_account.runbook_project.name
-
+    storage_account_id = azurerm_storage_account.runbook_project.id
 }
 
 # Create an automation account
@@ -43,6 +29,8 @@ resource "azurerm_automation_account" "runbook_project" {
     resource_group_name = azurerm_resource_group.runbook_project.name
     sku_name = "Free"
     location = "West US 2"
+
+    tags = var.project_tag
 }
 
 resource "azurerm_automation_runbook" "runbook_project" {
@@ -56,11 +44,13 @@ resource "azurerm_automation_runbook" "runbook_project" {
       uri = ""
     }
 
-    content = <<-EOT
-        print("Hello World from Azure Automation!")
-    EOT
+    # content = <<-EOT
+    #     print("Hello World from Azure Automation!")
+    # EOT
+    content = file("../runbook/first_runbook.py")
 
     log_verbose = true
     log_progress = true
 
+    tags = var.project_tag
 }
