@@ -44,9 +44,6 @@ resource "azurerm_automation_runbook" "runbook_project" {
       uri = ""
     }
 
-    # content = <<-EOT
-    #     print("Hello World from Azure Automation!")
-    # EOT
     content = file("../runbook/first_runbook.py")
 
     log_verbose = true
